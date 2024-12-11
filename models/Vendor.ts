@@ -41,6 +41,7 @@ const VendorSchema = new Schema({
     lat: { type: Number},
     lng: {type: Number}
 },{
+    // this helps to delete what we don't need to see
     toJSON: {
         transform(doc, ret){
             delete ret.password;
