@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { vendorLoginInput } from "../dto";
+import { vendorLoginInput, updateVendorProfileInput } from "../dto";
 import { findVendor } from "./AdminController";
 import { comparePasswords, generateSignature } from "../utility";
 
@@ -64,12 +64,83 @@ const getVendorProfile = async (req: Request,res: Response, next: NextFunction) 
         next(error);
     }  
 
-
-   
-    
 }
+
+const updateVendorProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user;
+        if (user) {
+            const existingVendor = await findVendor(user._id);
+            if(!existingVendor) {
+                res.status(404).json({ message: 'Vendor not found' });
+                return;
+            }
+
+            const { name, address, phone, email, foodType } = req.body as updateVendorProfileInput;
+            
+            // Direct property updates
+            if(name) existingVendor.name = name || existingVendor.name as string;
+            if(address) existingVendor.address = address || existingVendor.address as string;
+            if(phone) existingVendor.phone = phone || existingVendor.phone as string;
+            if(email) existingVendor.email = email || existingVendor.email as string;
+            if(foodType) existingVendor.foodType = foodType || existingVendor.foodType as string[];
+
+            // Save the updated vendor
+            const savedVendor = await existingVendor.save();
+            res.status(200).json({
+                message: 'Vendor profile updated successfully',
+                VendorProfile: savedVendor
+            });
+            return;
+        }
+        
+        res.status(404).json({ message: 'Vendor not found' });
+    } catch (error) {
+        console.error('Error occurred while updating vendor profile', error);
+        res.status(500).json({ message: 'Server Error' });
+        next(error);
+    }
+}
+const updateVendorService = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user;
+        if (user) {
+            const existingVendor = await findVendor(user._id);
+            if(!existingVendor) {
+                res.status(404).json({ message: 'Vendor not found' });
+                return;
+            }
+            existingVendor.serviceAvailable = !existingVendor.serviceAvailable;
+            const savedVendor = await existingVendor.save();
+            res.status(200).json({
+                message: 'Vendor service availability updated successfully',
+                VendorProfile: savedVendor
+            });
+            return;
+        }
+    } catch (error) {
+        console.error('Error occurred while updating vendor profile', error);
+        res.status(500).json({ message: 'Server Error' });
+        next(error);
+
+    }
+}
+const logoutVendor = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        
+        // to implement the logout logic later
+    } catch (error) {
+        console.error('Error occurred while logging out vendor', error);
+        res.status(500).json({ message: 'Server Error' });
+        next(error);
+    }
+}
+
+
 
 export { 
     VendorLogin,
-    getVendorProfile 
+    getVendorProfile,
+    updateVendorProfile,
+    updateVendorService
 };

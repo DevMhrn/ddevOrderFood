@@ -12,6 +12,14 @@ export interface vendorLoginInput{
     email: string;
     password: string;
 }    
+export interface updateVendorProfileInput{
+    name: string;
+    address: string;
+    phone: string;
+    email: string;
+    foodType: string[];
+}
+
 export interface VendorPayload{
     _id: string;
     email:string;
